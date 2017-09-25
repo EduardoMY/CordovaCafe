@@ -19,7 +19,10 @@
 var app = {
     // Application Constructor
     initialize: function() {
-        document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
+        //document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
+	if(firebase.auth().currentUser)
+	    location='defaultView.html';
+	
     },
 
     // deviceready Event Handler
@@ -32,14 +35,14 @@ var app = {
 
     // Update DOM on a Received Event
     receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
+/*        var parentElement = document.getElementById(id);
         var listeningElement = parentElement.querySelector('.listening');
         var receivedElement = parentElement.querySelector('.received');
 
         listeningElement.setAttribute('style', 'display:none;');
         receivedElement.setAttribute('style', 'display:block;');
 
-        console.log('Received Event: ' + id);
+        console.log('Received Event: ' + id); */
     }
 };
 
@@ -49,14 +52,12 @@ document.getElementById('login').addEventListener('click', authNow, false);
 
 function authNow() {
     var email=document.getElementById('email').value;
-    var pass=document.getElementById('pass').value
-    //createUse
-    firebase.auth().signInWithEmailAndPassword(email, pass).then(function(r){ console.log(firebase.auth().currentUser);}).catch(function(error) {
+    var pass=document.getElementById('pass').value;
+    //Log In User
+    firebase.auth().signInWithEmailAndPassword(email, pass).then(function(r){ location='defaultView.html'}).catch(function(error) {
 	var errorCode = error.code;
 	var errorMessage = error.message;
 	console.log(errorMessage);
     });
-    
-
 }
 
