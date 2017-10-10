@@ -1,70 +1,70 @@
 <!DOCTYPE html>
 <!--
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
   -->
+<!DOCTYPE html>
 <html lang="es">
   <head>
-    <!--
-        Customize this policy to fit your own app's needs. For more guidance, see:
-        https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
-        Some notes:
-        * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
-        * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
-        * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
-        * Enable inline JS: add 'unsafe-inline' to default-src
-	<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"> -->
+    <!--    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"> -->
     <meta charset="UTF-8"> 
     <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase-database.js"></script>
-    <script src="js/firebase_setup.js"></script>
-
-    <title> Log In - CafetApp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title> CafetApp SPA</title>
   </head>
   <body>
-    
-    <div class="container-fluid text-center">
-      <div class="row content">
-	<div class="col-md-4"></div>
-	<div id="main-content" class="col-md-4">
-	  <h1> CafetApp </h1>
-	  <form>
-	    <div class="form-group">
-	      <label for="exampleInputEmail1">Email address</label>
-	      <input id="email" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-	      <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-	    </div>
-	    <div class="form-group">
-	      <label for="exampleInputPassword1">Password</label>
-	      <input type="password" class="form-control" id="pass" placeholder="Password">
-	    </div>
-	    <button id="login" type="button" class="btn btn-primary"> Log In</button> <br><br>
-	    <a href="/signup.html"> Registrse </a>
-	  </form>
+    <div id="app" class="app">
+      <ul id="dropdown1" class="dropdown-content">
+	<li><a href="configuration.html">Settings</a></li>
+	<li class="divider"></li>
+	<li><a href="#!">Logout</a></li>
+      </ul>
+      <nav>
+	<div class="blue nav-wrapper">
+	  <a href="#" class="brand-logo">CafetApp</a>
+	  <ul id="nav-mobile" class="right">
+	    <li><a class="dropdown-button" href="#!" data-activates="dropdown1"><i class="material-icons">settings</i></a></li>
+	  </ul>
 	</div>
+      </nav>
+      <!-- login Screen-->
+      <div id="app-content"></div>
+      <div id="app-content-buttons" class="container">
+	<center>
+	  <button id="submit" class="btn waves-effect waves-light" type="button">
+	    Submit
+	    <i class="material-icons right">send</i>
+	  </button><br><br>
+	  <button id="back" class="btn waves-effect waves-light" type="button">
+	    <i class="material-icons right">arrow_back</i>
+	    <span id="secondary-button-text"></span>	 
+	  </button>
+	</center>
       </div>
-      
     </div>
-    <script type="text/javascript" src="cordova.js"></script>
-    <script type="text/javascript" src="js/index.js"></script>
+    <script src="cordova.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.5.0/firebase.js"></script>
+    <script crossorigin src="https://unpkg.com/react@15/dist/react.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+    <script src="js/index.js"></script>
   </body>
 </html>
