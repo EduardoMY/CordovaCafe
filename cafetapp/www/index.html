@@ -27,36 +27,20 @@
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <title> CafetApp SPA</title>
+    <link href="css/index.css" rel="stylesheet">
+    <title> CafetApp SPA </title>
   </head>
   <body>
     <div id="app" class="app">
-      <ul id="dropdown1" class="dropdown-content">
-	<li><a href="configuration.html">Settings</a></li>
-	<li class="divider"></li>
-	<li><a href="#!">Logout</a></li>
-      </ul>
-      <nav>
-	<div class="blue nav-wrapper">
-	  <a href="#" class="brand-logo">CafetApp</a>
-	  <ul id="nav-mobile" class="right">
-	    <li><a class="dropdown-button" href="#!" data-activates="dropdown1"><i class="material-icons">settings</i></a></li>
-	  </ul>
-	</div>
-      </nav>
+      <div id="navigation">
+      </div>
       <!-- login Screen-->
-      <div id="app-content"></div>
+      <div id="app-content">
+	<div id="logo_wrapper" style="height: 100vh; display: flex; align-items: center; justify-content:center">
+	  <img id="mainLogo" width="40%" src="img/company_logo_full.jpg" />
+	</div>	
+      </div>
       <div id="app-content-buttons" class="container">
-	<center>
-	  <button id="submit" class="btn waves-effect waves-light" type="button">
-	    Submit
-	    <i class="material-icons right">send</i>
-	  </button><br><br>
-	  <button id="back" class="btn waves-effect waves-light" type="button">
-	    <i class="material-icons right">arrow_back</i>
-	    <span id="secondary-button-text"></span>	 
-	  </button>
-	</center>
       </div>
     </div>
     <script src="cordova.js"></script>
@@ -68,3 +52,16 @@
     <script src="js/index.js"></script>
   </body>
 </html>
+
+<!--
+combo 1 $48
+combo 2 $52
+combo 3 $40
+combo 4 $48
+combo 5 $48
+combo 6$ 52
+combo 7$55
+combo 8 $50
+combo 9$42
+combo 10 $48
+-->

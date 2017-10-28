@@ -1,51 +1,57 @@
 var app = {
     // Application Constructor
-    userType: '',
+    userType: "",
     page: 0,
-    initialize: function() {
-	this.bindEvents();
+    order: [],
+    initialize: function () {
+        this.bindEvents();
     },
     // Bind Event Listeners
     //
     // Bind any events that are required on startup. Common events are:
-    // 'load', 'deviceready', 'offline', and 'online'.
-    bindEvents: function() {
-	document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
+    // "load", "deviceready", "offline", and "online".
+    bindEvents: function () {
+	document.addEventListener("deviceready", this.onDeviceReady.bind(this), false);
+	document.addEventListener("backbutton", this.handleBack.bind(this), false);
+    },
+    bindRestEvents: function(){
+	document.getElementById("submit").addEventListener("click", this.submit.bind(this), false);
+	document.getElementById("back").addEventListener("click", this.goBack.bind(this), false);
+	document.getElementById("logout").addEventListener("click", this.logOut.bind(this), false);
+	document.getElementById("settings").addEventListener("click", this.logOut.bind(this), false);
     },
     // deviceready Event Handler
     //
-    // The scope of 'this' is the event. In order to call the 'receivedEvent'
-    // function, we must explicity call 'app.receivedEvent(...);'
-    onDeviceReady: function(id) {
-	this.receivedEvent('deviceready');
+    // The scope of "this" is the event. In order to call the "receivedEvent"
+    // function, we must explicity call "app.receivedEvent(...);"
+    onDeviceReady: function (id) {
+	this.receivedEvent("deviceready");
 	this.initFirebase();
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
-	this.makeTransition(app.page);
+	setTimeout(function() {
+	    $("#mainLogo").attr("src", "img/cafeteria_logo.png");
+	    setTimeout(function(){
+		app.makeTransition(app.page);
+	    }, 2000)
+	}, 1500);
     },
-    manageUsers: function(){
-	var isUserLoggedIn = function(){return firebase && firebase.apps.length!==0 && firebase.auth() && firebase.auth().currentUser;};
-	var destinationPath = function(){return currentPage ==='login' || currentPage ==='signup' ? 'defaultView.html' : 'login.html'; };
-	
-	if(isUserLoggedIn())
-	    location = destinationPath();
-	/*
-	  else
-	  firebase.auth().onAuthStateChanged(function(user) {
-	  if (user) 
-	  location = destinationPath();
-	  });
-	*/
+    setModal: function(){
+	$('#choose-drink').modal({
+	    dismissible: false,
+	    inDuration: 300,
+	    outDuration: 200,
+	});
     },
-    authNow: function(){
-	alert('authNow');
-	var email=document.getElementById('email').value;
-	var pass=document.getElementById('pass').value;
+    authNow: function (){
+	alert("authNow");
+	var email=document.getElementById("email").value;
+	var pass=document.getElementById("pass").value;
 	//Log In User
 	firebase.auth().signInWithEmailAndPassword(email, pass).
 	    then(function(){
-		alert('TodoFine');
+		alert("TodoFine");
 		app.page=3;
 		app.makeTransition();
 	    }).
@@ -56,10 +62,10 @@ var app = {
 	    });
     },
     signUpNow: function(){
-	var name = document.getElementById('name').value;
-	var tel = document.getElementById('telephone').value;
-	var email = document.getElementById('email').value;
-	var pass = document.getElementById('pass').value;
+	var name = document.getElementById("name").value;
+	var tel = document.getElementById("telephone").value;
+	var email = document.getElementById("email").value;
+	var pass = document.getElementById("pass").value;
 	
 	if(this.checkDataIntegrity(name, tel, email, pass)){
 	    //createUse
@@ -67,30 +73,29 @@ var app = {
 		then(function(c){
 		    console.log(firebase.auth().currentUser);
 		    var db = firebase.database();
-		    db.ref('users/' + firebase.auth().currentUser.uid).set({
+		    db.ref("users/" + firebase.auth().currentUser.uid).set({
 			name: name,
 			email: email,
 			telephone: tel,
-			orders: {}
+			orders: []
 		    });
 		    app.page=3;
 		    app.makeTransition();
-//		    window.location='defaultView.html';
 		}).
 		catch(function(error) {
 		    var errorCode = error.code;
 		    var errorMessage = error.message;
-		    console.log(errorMessage);
+		    alert(errorMessage);
 		});
 	}
     },
     checkDataIntegrity:function(name, telephone, email, pass){
 	if(!pass || pass.length<6){
-	    window.alert('Cuida el password');
+	    window.alert("Cuida el password");
 	    return false;
 	}
 	else if(!telephone || telephone.length!=10 || !name || !pass || !passCopy){
-	    window.alert('Nooo');
+	    window.alert("Nooo");
 	    return false;
 	}
 	return true;
@@ -122,13 +127,14 @@ var app = {
 		  n("span",{className: "card-title grey-text text-darken-4" },"Card Title",
 		    n("i",{className: "material-icons right" },"close")),
 		  n("p",null,"Here is some more information about this product that is only revealed once clicked on.")))),
-	    document.getElementById('restaurants-space'));
+	    document.getElementById("restaurants-space"));
     },
     logOut: function(){
 	firebase.auth().signOut().then(function() {
-	    alert('wuuu');
-	    location='login.html';
-	}, function(error) {	    
+	    alert("wuuu");
+	    app.page=0;
+	    app.makeTransition();  
+	}, function(error) {
 	    console.log(error);
 	});
     },
@@ -141,60 +147,112 @@ var app = {
 		return (
 		    nR("url", null,
 		       this.props.dishes.map(function(dishKey){
-			   return nR('li', null, dishKey);
+			   return nR("li", null, dishKey);
 		       })
 		      ));
 	    }
 	});
 	ReactDOM.render(nR(DishesRendering, {dishes: keys}),
-			document.getElementById('dishes-space'));
+			document.getElementById("dishes-space"));
     },
     gimmeTheDishes: function(){
-	firebase.database().ref('restaurants/').once('value').then(function(snapshot) {
-	    app.loadDishes((snapshot.val() && snapshot.val().dishes) || 'Anonymous'); });
+	firebase.database().ref("restaurants/").once("value").then(function(snapshot) {
+	    app.loadDishes((snapshot.val() && snapshot.val().dishes) || "Anonymous"); });
+    },
+    handleBack: function(){
+	alert("Yep this works");
+	var pg = this.page;
+	if(pg === 0){
+	    throw new Error("Exit from Logout");
+	}
+	else if(pg === 1){
+	    this.page = 0;
+	    makeTransition();
+	}
+	else if(pg === 3){
+	    throw new Error("Exit from main view");
+	}
     },
     makeTransition: function(){
 	if(app.page===0){ //Load Login
 	    this.changeUserInterface(false);
-	    $("#app-content").load("html/login.html", function(){
-		$('#submit').click(app.authNow.bind(app));
-		$('#secondary-button-text').html('Go to Sign Up page');
-		$('#back').click(function(){
-		    app.page=1;
-		    app.makeTransition();
-		});
-	    });
+	    this.initialViewSetup();
 	}
 	else if(app.page===1){ //Load Signup
 	    $("#app-content").load("html/signup.html", function(){
-		$('#submit').click(app.signUpNow.bind(app));
-		$('#secondary-button-text').html('Back to Login page');
-		$('#back').click(function(){
-		    app.page=0;
-		    app.makeTransition();
-		});
+		$("#secondary-button-text").html("De vuelta");
 	    });
 	}
 	else if(app.page===2){ //DefaultView,,,,, Let this for a next version :)
-	    alert('what you doing here');
+	    alert("what you doing here");
 	}
 	else if(app.page===3){
 	    this.changeUserInterface(true);
-	    $("#app-content").load("html/defaultView.html", function(){
-		app.loadDishes();
-	    });
+	    this.loadRestaurantView();
+	    $("#modal-content").load("extra_components/modal.html");
 	}
+    },
+    submit: function(){
+	switch(app.page){
+	case 0:
+	    this.authNow.apply(this);
+	    break;
+	case 1:
+	    this.signUpNow.apply(this);
+	    break;
+	default:
+	    console.log("NOOO");
+	}
+    },
+    goBack: function(){
+	app.page = ( app.page === 0 ? 1 : 0)
+	app.makeTransition();
     },
     changeUserInterface: function(isLoggedIn){
 	if(isLoggedIn){
-	    $('#app-content-buttons').css('visibility', "hidden");
-	    $('#nav-mobile').css('visibility', 'visible');
+	    $("#app-content-buttons").css("visibility", "hidden");
+	    $("#nav-mobile").css("visibility", "visible");
 	}
 	else{
-	    $('#app-content-buttons').css('visibility', "visible");
-	    $('#nav-mobile').css('visibility', 'hidden');
+	    $("#app-content-buttons").css("visibility", "visible");
+	    $("#nav-mobile").css("visibility", "hidden");
 	}
-    }
+    },
+    initialViewSetup: function(){
+    	$("#navigation").load("extra_components/nav.html", function(){
+	    $("#app-content").load("html/login.html", function(){
+		$("#app-content-buttons").load("extra_components/buttons.html", function() {
+		    app.bindRestEvents();
+		    $("#secondary-button-text").html("Hacer cuenta");	
+		});
+	    });
+	});	
+    },
+    loadRestaurantView: function(){
+	$("#app-content").load("html/restaurantDishes.html", function(){
+	    app.loadRestaurantImages();
+	    $("#modal-content").load("extra_components/modal.html", function() {
+		app.setModal();
+		$("#pay").click(function(){
+		    $("#secret_form").load("form/template.html", function(){
+			$("#payment").submit();
+		    });
+		});	
+	    });
+	});
+    },
+    loadRestaurantImages: function(){
+	var storage = firebase.storage();
+	var logoRef = storage.ref("restaurant/cafeteria_logo.png");
+	logoRef.getDownloadURL().then().then(function(url) {
+	    var img = document.getElementById("logo");
+	    img.src = url;
+	}).catch(function(error){
+	    alert(error);
+	});
+	    
+    },
+    
 };
 
 app.initialize();
