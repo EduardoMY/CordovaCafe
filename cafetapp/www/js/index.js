@@ -1,8 +1,12 @@
 var app = {
-    // Application Constructor
-    userType: "",
+    userType: "client",
     page: 0,
+    amount: 0,
     order: [],
+    dishes: {},
+    telephone: "",
+    name: "",
+    userId: "",
     initialize: function () {
         this.bindEvents();
     },
@@ -17,8 +21,6 @@ var app = {
     bindRestEvents: function(){
 	document.getElementById("submit").addEventListener("click", this.submit.bind(this), false);
 	document.getElementById("back").addEventListener("click", this.goBack.bind(this), false);
-	document.getElementById("logout").addEventListener("click", this.logOut.bind(this), false);
-	document.getElementById("settings").addEventListener("click", this.logOut.bind(this), false);
     },
     // deviceready Event Handler
     //
@@ -37,21 +39,26 @@ var app = {
 	    }, 2000)
 	}, 1500);
     },
-    setModal: function(){
+    setModals: function(){
+	// Initial Configuration of footer modal
 	$('#choose-drink').modal({
 	    dismissible: false,
 	    inDuration: 300,
 	    outDuration: 200,
 	});
+	// Initial Configuration of Shopping Car
+	$('#shopping-car').modal({
+	    dismissible: true,
+	    inDuration: 300,
+	    outDuration: 200,
+	});
     },
     authNow: function (){
-	alert("authNow");
 	var email=document.getElementById("email").value;
 	var pass=document.getElementById("pass").value;
 	//Log In User
 	firebase.auth().signInWithEmailAndPassword(email, pass).
 	    then(function(){
-		alert("TodoFine");
 		app.page=3;
 		app.makeTransition();
 	    }).
@@ -71,12 +78,12 @@ var app = {
 	    //createUse
 	    firebase.auth().createUserWithEmailAndPassword(email, pass).
 		then(function(c){
-		    console.log(firebase.auth().currentUser);
 		    var db = firebase.database();
 		    db.ref("users/" + firebase.auth().currentUser.uid).set({
 			name: name,
 			email: email,
 			telephone: tel,
+			type: false,
 			orders: []
 		    });
 		    app.page=3;
@@ -94,7 +101,7 @@ var app = {
 	    window.alert("Cuida el password");
 	    return false;
 	}
-	else if(!telephone || telephone.length!=10 || !name || !pass || !passCopy){
+	else if(!telephone || telephone.length==0 || !name){
 	    window.alert("Nooo");
 	    return false;
 	}
@@ -111,25 +118,8 @@ var app = {
 	};
 	firebase.initializeApp(config);
     },
-    loadRestaurantsReact: function(){
-	var n = React.createElement;
-	ReactDOM.render(
-	    n("div", {className:"col s6"},
-	      n("div",{className: "card" },
-		n("div",{className: "card-image waves-effect waves-block waves-light" },
-		  n("img", {className: "activator", src: "../img/res.jpg" })),
-		n("div",{className: "card-content" },
-		  n("span",{className: "card-title activator grey-text text-darken-4" },"Card Title",
-		    n("i",{className: "material-icons right" },"more_vert")),
-		  n("p",null,
-		    n("a",{ href: "restaurantDishes.html" },"This is a link"))),
-		n("div",{className: "card-reveal" },
-		  n("span",{className: "card-title grey-text text-darken-4" },"Card Title",
-		    n("i",{className: "material-icons right" },"close")),
-		  n("p",null,"Here is some more information about this product that is only revealed once clicked on.")))),
-	    document.getElementById("restaurants-space"));
-    },
     logOut: function(){
+	app.cleanAll();
 	firebase.auth().signOut().then(function() {
 	    alert("wuuu");
 	    app.page=0;
@@ -138,26 +128,10 @@ var app = {
 	    console.log(error);
 	});
     },
-    loadDishes: function(dishes){
-	var nR = React.createElement;
-	var keys =  Object.keys(dishes);
-	var DishesRendering = React.createClass({
-	    displayName: "DishesRendering",
-	    render: function () {
-		return (
-		    nR("url", null,
-		       this.props.dishes.map(function(dishKey){
-			   return nR("li", null, dishKey);
-		       })
-		      ));
-	    }
-	});
-	ReactDOM.render(nR(DishesRendering, {dishes: keys}),
-			document.getElementById("dishes-space"));
-    },
-    gimmeTheDishes: function(){
-	firebase.database().ref("restaurants/").once("value").then(function(snapshot) {
-	    app.loadDishes((snapshot.val() && snapshot.val().dishes) || "Anonymous"); });
+    loadDishes: function(){
+	app.dishes["combo1"]=48;app.dishes["combo2"]=52;app.dishes["combo3"]=40;app.dishes["combo4"]=48;
+	app.dishes["combo5"]=48;app.dishes["combo6"]=52;app.dishes["combo7"]=55;app.dishes["combo8"]=50;
+	app.dishes["combo9"]=42;app.dishes["combo10"]=48;
     },
     handleBack: function(){
 	alert("Yep this works");
@@ -187,9 +161,19 @@ var app = {
 	    alert("what you doing here");
 	}
 	else if(app.page===3){
-	    this.changeUserInterface(true);
-	    this.loadRestaurantView();
-	    $("#modal-content").load("extra_components/modal.html");
+	    var page3Loading = function(){
+		if(app.userType==="client"){
+		    app.changeUserInterface(true);
+		    app.loadRestaurantView();
+		    $("#modal-content").load("extra_components/modal.html");
+		}
+		else{ //Should be a restaurant owner or manager
+		    app.changeUserInterface(true);
+		    app.loadRestaurantDashboard();
+		}
+		$("#nav-mobile").css('display', 'inline');
+	    };
+	    app.definingUser(page3Loading);
 	}
     },
     submit: function(){
@@ -230,29 +214,104 @@ var app = {
     },
     loadRestaurantView: function(){
 	$("#app-content").load("html/restaurantDishes.html", function(){
-	    app.loadRestaurantImages();
+	    app.loadDishes();
 	    $("#modal-content").load("extra_components/modal.html", function() {
-		app.setModal();
-		$("#pay").click(function(){
-		    $("#secret_form").load("form/template.html", function(){
-			$("#payment").submit();
-		    });
-		});	
+		$("#modal-content2").load("extra_components/modal_car.html", function() {
+		    app.setModals();
+		    $("#pay").click(app.paymentMethod); 
+		});
 	    });
 	});
     },
-    loadRestaurantImages: function(){
-	var storage = firebase.storage();
-	var logoRef = storage.ref("restaurant/cafeteria_logo.png");
-	logoRef.getDownloadURL().then().then(function(url) {
-	    var img = document.getElementById("logo");
-	    img.src = url;
-	}).catch(function(error){
-	    alert(error);
+    paymentMethod: function(){
+	if(app.order.length === 0){
+	    alert("No has seleccionado ningún platillo");
+	    return ;
+	}
+	$("#secret_form").empty();
+	$("#secret_form").load("extra_components/form.html", function(){
+	    $("#amount").attr("value", app.amount);
+	    $("#items").attr("value", app.order.join("+"));
+	    $("#custom_input").attr("value", JSON.stringify({
+		userId: app.userId,
+		name: app.name,
+		telephone: app.telephone
+	    }));
+	    $("#payment").submit();
 	});
-	    
     },
-    
+    click: function(option){
+	app.order.push(option);
+	if(typeof app.dishes[option] !== 'undefined'){//Product must be 
+	    app.amount += app.dishes[option];
+	}
+	else {
+	    Materialize.toast('Su pedido estará listo en 15 min.', 3000)
+	    setTimeout(function() {
+		app.setShoppingCarContent();
+	    }, 3200);
+	}
+    },
+    setShoppingCarContent: function(){
+	var dish = "";
+	
+	$("#shopping-car-products").empty();
+	$("#shopping-total").empty();
+	
+	app.order.forEach(function(x, i){
+	    if(i%2 === 0){ //item is a dish
+		dish = x;
+	    }
+	    else{ //item is a beverage
+		$("#shopping-car-products").append("<div>" + dish + " y " + x +" = $"+ app.dishes[dish]+ "</div>");
+		dish="";
+	    }
+	});
+	$("#shopping-total").append("<div> <h3>Total: $" +app.amount+"</h3> </div>");
+	$('#shopping-car').modal('open');
+    },
+    loadRestaurantDashboard: function(){
+	$("#app-content").load("html/restaurantView.html", function(){
+	    app.updateOrders();
+	});
+    },
+    loadOrders: function(orders){
+	$("#orders").empty();
+	for(var key in orders){
+	    $("#orders").append(app.buildOrder());
+	}
+    },
+    updateOrders: function(){
+	var ordersRef = firebase.database().ref('orders/');
+	ordersRef.on('value', function(snapshot) {
+	    app.loadOrders(snapshot.val());
+	});
+    },
+    buildOrder: function(){
+	return '<div class="row"><div class="col s12 m6"><div class="card blue-grey darken-1"><div class="card-content white-text"><span class="card-title">Card Title</span><p>I am a very simple card. I am good at containing small bits of information.I am convenient because I require little markup to use effectively.</p></div><!--<div class="card-action"><a href="#">This is a link</a><a href="#">This is a link</a></div>--></div></div></div>';
+    },
+    definingUser: function(page3Loading){ // And more
+	var userId = firebase.auth().currentUser.uid;
+	var userType = "client";
+	return firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
+	    if(snapshot.val()){
+		app.telephone = snapshot.val().telephone || "666";
+		app.name = snapshot.val().name || "Juan Perez";
+		app.userId = userId;
+		app.userType = (snapshot.val().type ? "restaurant" : userType);	
+	    }
+	    page3Loading();
+	});
+    },
+    cleanAll: function(){
+	app.userType = "client";
+	app.amount = 0;
+	app.order = [];
+	app.dishes = {};
+	app.userId = "";
+	app.telephone = "";
+	app.name = "";
+    },
 };
 
 app.initialize();
