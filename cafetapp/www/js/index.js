@@ -278,7 +278,7 @@ var app = {
     loadOrders: function(orders){
 	$("#orders").empty();
 	for(var key in orders){
-	    $("#orders").append(app.buildOrder());
+	    $("#orders").append(app.buildOrder(key, orders[key]));
 	}
     },
     updateOrders: function(){
@@ -287,8 +287,8 @@ var app = {
 	    app.loadOrders(snapshot.val());
 	});
     },
-    buildOrder: function(){
-	return '<div class="row"><div class="col s12 m6"><div class="card blue-grey darken-1"><div class="card-content white-text"><span class="card-title">Card Title</span><p>I am a very simple card. I am good at containing small bits of information.I am convenient because I require little markup to use effectively.</p></div><!--<div class="card-action"><a href="#">This is a link</a><a href="#">This is a link</a></div>--></div></div></div>';
+    buildOrder: function(id, orderInfo){
+	return '<div class="row"><div class="col s12 m8 offset-m2"><div class="card blue lighten-2"><div class="card-content white-text"><span class="card-title"> Orden #'+id+'</span><p>Orders: '+orderInfo.items+'<br />Cliente: '+orderInfo.name+'.</p></div><!--<div class="card-action"><a href="#">This is a link</a><a href="#">This is a link</a></div>--></div></div></div>';
     },
     definingUser: function(page3Loading){ // And more
 	var userId = firebase.auth().currentUser.uid;

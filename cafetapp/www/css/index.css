@@ -1,6 +1,9 @@
 #app-content-buttons{
     text-align: center;
 }
+h1, h2, h3{
+    text-align: center;
+}
 .logo_header{
     padding-top: 1em;
     width: 25%;
