@@ -1,11 +1,26 @@
 <div id="shopping-car" class="modal">
-  <div class="modal-content">
+  <div class="modal-content"> 
     <h4>Listado de Productos</h4>
-    <div id="shopping-car-products">
-      
-    </div>
-    <div id="shopping-total" class="modal-footer">
-      
-    </div>
+    <table class="striped">
+      <thead>
+	<tr>
+          <th>Platillo</th>
+          <th>Bebida</th>
+          <th>Precio</th>
+        </tr>
+      </thead>
+      <tfoot>
+	<tr>
+	  <td colspan="2" style="text-align: center; font-weight: bold; font-size:1.5em;">
+	    Total: 
+	  </td>
+	  <td id="shopping-total">
+	  </td>
+	</tr>
+	
+      </tfoot>
+      <tbody id="shopping-car-products">
+      </tbody>
+    </table>
   </div>
 </div>

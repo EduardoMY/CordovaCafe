@@ -263,11 +263,11 @@ var app = {
 		dish = x;
 	    }
 	    else{ //item is a beverage
-		$("#shopping-car-products").append("<div>" + dish + " y " + x +" = $"+ app.dishes[dish]+ "</div>");
+		$("#shopping-car-products").append("<tr><td>"+dish+"</td><td>"+x+"</td><td>$"+app.dishes[dish]+"</td></tr>");
 		dish="";
 	    }
 	});
-	$("#shopping-total").append("<div> <h3>Total: $" +app.amount+"</h3> </div>");
+	$("#shopping-total").append("$"+app.amount);
 	$('#shopping-car').modal('open');
     },
     loadRestaurantDashboard: function(){
