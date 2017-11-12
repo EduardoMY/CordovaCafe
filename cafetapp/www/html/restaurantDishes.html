@@ -166,10 +166,16 @@
   </div>
   <div id="modal-content"></div>
   <div id="modal-content2"></div>
-  <div class="fixed-action-btn">
-    <a id="pay" class="btn-floating btn-large waves-effect waves-light red">
-      <i class="material-icons"> payment </i>
+  <div id="modal-content3"></div>
+  <div class="fixed-action-btn horizontal click-to-toggle">
+    <a class="btn-floating btn-large waves-effect waves-light red">
+      <i class="material-icons">menu</i>
     </a>
+    <ul>
+      <li><a onClick="app.paymentMethod();" class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons"> payment </i></a></li>
+      <li><a onClick="$('#shopping-car').modal('open');" class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons"> shopping_cart </i></a></li>
+      <li><a onClick="app.loadOrdersUser();" class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons"> history </i></a></li>      
+    </ul>
   </div>
   <div id="secret_form" style="display: none"> </div>
 </div>

@@ -52,6 +52,12 @@ var app = {
 	    inDuration: 300,
 	    outDuration: 200,
 	});
+	// Initial Configuration of Orders History
+	$('#orders-history').modal({
+	    dismissible: true,
+	    inDuration: 300,
+	    outDuration: 200,
+	});
     },
     authNow: function (){
 	var email=document.getElementById("email").value;
@@ -217,8 +223,9 @@ var app = {
 	    app.loadDishes();
 	    $("#modal-content").load("extra_components/modal.html", function() {
 		$("#modal-content2").load("extra_components/modal_car.html", function() {
-		    app.setModals();
-		    $("#pay").click(app.paymentMethod); 
+		    $("#modal-content3").load("extra_components/modal_orders.html", function(){
+			app.setModals();
+		    });
 		});
 	    });
 	});
@@ -263,7 +270,7 @@ var app = {
 		dish = x;
 	    }
 	    else{ //item is a beverage
-		$("#shopping-car-products").append("<tr><td>"+dish+"</td><td>"+x+"</td><td>$"+app.dishes[dish]+"</td></tr>");
+		$("#shopping-car-products").append("<tr><td><a style='padding: 0 1rem;' class='btn red' onClick='app.deleteProduct("+((i-1)/2)+", "+app.dishes[dish]+")'><i class='material-icons'>cancel</i></a></td><td>"+dish+"</td><td>"+x+"</td><td>$"+app.dishes[dish]+"</td></tr>");
 		dish="";
 	    }
 	});
@@ -271,24 +278,27 @@ var app = {
 	$('#shopping-car').modal('open');
     },
     loadRestaurantDashboard: function(){
+	var filter = function(){
+	    return true;
+	};
 	$("#app-content").load("html/restaurantView.html", function(){
-	    app.updateOrders();
+	    app.updateOrders(filter);
 	});
     },
-    loadOrders: function(orders){
-	$("#orders").empty();
-	for(var key in orders){
-	    $("#orders").append(app.buildOrder(key, orders[key]));
-	}
-    },
-    updateOrders: function(){
+    updateOrders: function(filter){
 	var ordersRef = firebase.database().ref('orders/');
 	ordersRef.on('value', function(snapshot) {
-	    app.loadOrders(snapshot.val());
+	    app.loadOrders(snapshot.val(), filter);
 	});
     },
-    buildOrder: function(id, orderInfo){
-	return '<div class="row"><div class="col s12 m8 offset-m2"><div class="card blue lighten-2"><div class="card-content white-text"><span class="card-title"> Orden #'+id+'</span><p>Orders: '+orderInfo.items+'<br />Cliente: '+orderInfo.name+'.</p></div><!--<div class="card-action"><a href="#">This is a link</a><a href="#">This is a link</a></div>--></div></div></div>';
+    loadOrders: function(orders, filter){
+	$("#orders").empty();
+	for(var key in orders){
+	    $("#orders").append(app.buildOrder(key, orders[key], filter));
+	}
+    },
+    buildOrder: function(id, orderInfo, filter){
+	return filter(orderInfo.userId) ? '<div class="row"><div class="col s12 m8 offset-m2"><div class="card blue lighten-2"><div class="card-content white-text"><span class="card-title"> Orden #'+id+'</span><p>Orders: '+orderInfo.items+'<br />Cliente: '+orderInfo.name+'.</p></div><!--<div class="card-action"><a href="#">This is a link</a><a href="#">This is a link</a></div>--></div></div></div>' : '<span />';
     },
     definingUser: function(page3Loading){ // And more
 	var userId = firebase.auth().currentUser.uid;
@@ -312,6 +322,23 @@ var app = {
 	app.telephone = "";
 	app.name = "";
     },
+    deleteProduct: function(index, price){
+	var indexOrder = index * 2;
+	app.order.splice(indexOrder, 2);
+	app.amount = app.amount - Number(price);
+	$("#shopping-table tr:eq("+(index+2)+")").remove();
+	app.setShoppingCarContent();
+    },
+    loadOrdersUser: function(){
+	var id = app.userId;
+	var filter = function(id){
+	    return function(userId){
+		return id === userId;
+	    }
+	}(id);
+	$('#orders-history').modal('open');
+	app.updateOrders(filter);
+    }
 };
 
 app.initialize();
