@@ -7,6 +7,7 @@ var app = {
     telephone: "",
     name: "",
     userId: "",
+    intervalId: "",
     initialize: function () {
         this.bindEvents();
     },
@@ -57,6 +58,10 @@ var app = {
 	    dismissible: true,
 	    inDuration: 300,
 	    outDuration: 200,
+	    complete: function(){
+		clearInterval(app.intervalId);
+		app.intervalId="";
+	    }
 	});
     },
     authNow: function (){
@@ -127,7 +132,6 @@ var app = {
     logOut: function(){
 	app.cleanAll();
 	firebase.auth().signOut().then(function() {
-	    alert("wuuu");
 	    app.page=0;
 	    app.makeTransition();  
 	}, function(error) {
@@ -292,13 +296,36 @@ var app = {
 	});
     },
     loadOrders: function(orders, filter){
-	$("#orders").empty();
-	for(var key in orders){
-	    $("#orders").append(app.buildOrder(key, orders[key], filter));
-	}
+	clearInterval(app.intervalId);
+	app.intervalId = setInterval(function(){
+	    console.log('intervall');
+	    $("#orders").empty();
+	    for(var key in orders){
+		$("#orders").append(app.buildOrder(key, orders[key], filter));
+	    }
+	}, 1010);
     },
     buildOrder: function(id, orderInfo, filter){
-	return filter(orderInfo.userId) ? '<div class="row"><div class="col s12 m8 offset-m2"><div class="card blue lighten-2"><div class="card-content white-text"><span class="card-title"> Orden #'+id+'</span><p>Orders: '+orderInfo.items+'<br />Cliente: '+orderInfo.name+'.</p></div><!--<div class="card-action"><a href="#">This is a link</a><a href="#">This is a link</a></div>--></div></div></div>' : '<span />';
+	return filter(orderInfo.userId) ? '<div class="row"><div class="col s12 m8 offset-m2"><div class="card '+(orderInfo.active ? ('blue lighten-2') : ('grey lighten-2'))+'"><div class="card-content white-text"><span class="card-title"> Orden #'+id+'</span><p>Pedido: '+orderInfo.items+'<br />Cliente: '+orderInfo.name+'.</p><p>Contador: <span>'+app.getTime(orderInfo.time)+'</span><p></div>'+ (app.userType === 'restaurant' ? ('<div class="card-action"><a href="#" class="btn '+(orderInfo.active ? 'red lighten-3' : 'disabled')+'" onClick=app.orderDone("'+id+'")>Terminar</a></div>') : ('<span />') )+'</div></div></div>' : '<span />';
+    },
+    orderDone: function(id){
+	var ordersRef = firebase.database().ref('orders/' + id);
+	ordersRef.on('value', function(snapshot) {
+	    var update = {};
+	    update['/orders/'+id] = snapshot.val();
+	    update['/orders/'+id].active = false;
+	    firebase.database().ref().update(update);
+	});
+    },
+    getTime: function(time){
+	var d = new Date();
+	var dfTime = parseInt((d.getTime() - time)/1000);
+	if(dfTime >= 900)
+	    return "00:00";
+	var timer = 900 - dfTime;
+	var min = parseInt(timer / 60);
+	var seg = timer % 60;
+	return (min<10 ? "0"+min : min) + ":"+(seg<10 ? "0"+seg : seg);
     },
     definingUser: function(page3Loading){ // And more
 	var userId = firebase.auth().currentUser.uid;
@@ -321,6 +348,8 @@ var app = {
 	app.userId = "";
 	app.telephone = "";
 	app.name = "";
+	clearInterval(app.intervalId);
+	app.intervalId = "";
     },
     deleteProduct: function(index, price){
 	var indexOrder = index * 2;
